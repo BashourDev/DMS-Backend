@@ -99,13 +99,25 @@ class GroupController extends Controller
         return response($users);
     }
 
-    public function linkFileSystem(Request $request, Group $group, FileSystemEntry $fileSystemEntry){
+    public function linkFileSystemEntry(Request $request, Group $group, FileSystemEntry $fileSystemEntry)
+    {
         $group->fileSystemEntries()->syncWithPivotValues(
             [$fileSystemEntry->id],
             ['read'=>$request->get('read'),
             'upload'=>$request->get('upload'),
             'download'=>$request->get('download'),
             'delete'=>$request->get('delete')]);
-        return response(['status'=>'file system linked!']);
+        return response(['status'=>'file system entry linked!']);
+    }
+
+    public function updateFileSystemEntryPermissions(Request $request, Group $group, FileSystemEntry $fileSystemEntry)
+    {
+        $group->fileSystemEntries()->updateExistingPivot(
+            $fileSystemEntry->id,
+            ['read'=>$request->get('read'),
+            'upload'=>$request->get('upload'),
+            'download'=>$request->get('download'),
+            'delete'=>$request->get('delete')]);
+        return response(['status'=>'file system entry permissions updated!']);
     }
 }
