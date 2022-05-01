@@ -23,4 +23,9 @@ class FileSystemEntry extends Model implements HasMedia
     {
         return $this->belongsToMany(User::class, 'reminders', 'file_system_entry_id', 'user_id');
     }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'fileSystemEntry_group',  'file_system_entry_id', 'group_id');
+    }
 }
