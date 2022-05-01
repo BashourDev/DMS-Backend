@@ -99,4 +99,13 @@ class GroupController extends Controller
         return response($users);
     }
 
+    public function linkFileSystem(Request $request, Group $group, FileSystemEntry $fileSystemEntry){
+        $group->fileSystemEntries()->syncWithPivotValues(
+            [$fileSystemEntry->id],
+            ['read'=>$request->get('read'),
+            'upload'=>$request->get('upload'),
+            'download'=>$request->get('download'),
+            'delete'=>$request->get('delete')]);
+        return response(['status'=>'file system linked!']);
+    }
 }
