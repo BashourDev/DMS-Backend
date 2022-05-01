@@ -17,7 +17,7 @@ class Group extends Pivot
 
     public function fileSystemEntries()
     {
-        return $this->belongsToMany(FileSystemEntry::class, 'group_permission', 'group_id', 'file_system_entry_id');
+        return $this->belongsToMany(FileSystemEntry::class, 'fileSystemEntry_group', 'group_id', 'file_system_entry_id');
     }
 
 }
