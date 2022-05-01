@@ -36,8 +36,8 @@ class FileSystemEntryController extends Controller
             'due_date' => $request->get('due_date'),
         ]);
 
-        if ($request->get('attachment')) {
-            $fse->addMediaFromRequest('attachment');
+        if (!$request->get('is_directory')) {
+            $fse->addMediaFromRequest('attachment')->toMediaCollection();
         }
 
         return response($fse);
