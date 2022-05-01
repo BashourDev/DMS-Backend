@@ -12,6 +12,17 @@ class Category extends Model
 
     protected $fillable = ['parent_id', 'name'];
 
+    public function getCustomPaths()
+    {
+        return [
+            [
+                'name' => 'custom_path',
+                'column' => 'name',
+                'separator' => ' / ',
+            ],
+        ];
+    }
+
     public function fileSystemEntries()
     {
         return $this->hasMany(FileSystemEntry::class, 'category_id', 'id');
