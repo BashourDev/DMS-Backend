@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FileSystemEntry;
 use Illuminate\Http\Request;
+use function Symfony\Component\Mime\Header\get;
 
 class FileSystemEntryController extends Controller
 {
@@ -80,5 +81,15 @@ class FileSystemEntryController extends Controller
     public function goBack(Request $request, FileSystemEntry $fileSystemEntry)
     {
         return response(['documents' => $fileSystemEntry->parent->children()->orderBy('name')->get(), 'parent' => $fileSystemEntry->parent->id]);
+    }
+
+    /**
+     *
+     * @param FileSystemEntry $fileSystemEntry
+     * @return \Illuminate\Http\Response
+     */
+    public function getGroups(FileSystemEntry $fileSystemEntry)
+    {
+        return response($fileSystemEntry->groups()->withPivot(['read', 'upload', 'download', 'delete'])->get());
     }
 }
