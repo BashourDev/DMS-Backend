@@ -13,11 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('group_permission', function (Blueprint $table) {
+        Schema::create('fileSystemEntry_group', function (Blueprint $table) {
             $table->id();
             $table->foreignId('group_id');
-            $table->foreignId('permission_id');
             $table->foreignId('file_system_entry_id');
+            $table->boolean('read');
+            $table->boolean('upload');
+            $table->boolean('download');
+            $table->boolean('delete');
             $table->timestamps();
         });
     }
