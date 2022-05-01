@@ -29,7 +29,8 @@ class FileSystemEntry extends Model implements HasMedia
         return $this->belongsToMany(Group::class, 'fileSystemEntry_group',  'file_system_entry_id', 'group_id');
     }
 
-    public function permissions(){
+    public function permissions()
+    {
         return $this->hasOne('fileSystemEntry_group')->selectRaw(
             'SELECT
                             BIT_OR(`fileSystemEntry_group`.`read`) AS `read`,
@@ -47,7 +48,16 @@ class FileSystemEntry extends Model implements HasMedia
                                 AND users.id = group_user.user_id
                                 AND `group`.id = fileSystemEntry_group.group_id
                                 AND file_system_entries.id = fileSystemEntry_group.file_system_entry_id
-                                AND users.id = '. auth()->user()->id
+                                AND users.id = ' . auth()->user()->id
         );
+    }
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id', 'id');
+    }
+
+    public function group_approval()
+    {
+        return $this->belongsTo(Group::class, 'group_approval_id', 'id');
     }
 }

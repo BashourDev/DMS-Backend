@@ -37,8 +37,8 @@ class FileSystemEntryController extends Controller
             'due_date' => $request->get('due_date'),
         ]);
 
-        if ($request->get('attachment')) {
-            $fse->addMediaFromRequest('attachment');
+        if (!$request->get('is_directory')) {
+            $fse->addMediaFromRequest('attachment')->toMediaCollection();
         }
 
         return response($fse);
@@ -52,7 +52,7 @@ class FileSystemEntryController extends Controller
      */
     public function show(FileSystemEntry $fileSystemEntry)
     {
-        //
+        return response($fileSystemEntry->loadMissing(['category', 'group_approval']));
     }
 
     /**
@@ -64,7 +64,12 @@ class FileSystemEntryController extends Controller
      */
     public function update(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        //
+        $fileSystemEntry->name = $request->get('name');
+        $fileSystemEntry->category_id = $request->get('category');
+        $fileSystemEntry->group_approval_id = $request->get('group_approval_id');
+        $fileSystemEntry->due_date = $request->get('due_date');
+        $fileSystemEntry->save();
+        return response($fileSystemEntry);
     }
 
     /**
@@ -75,7 +80,13 @@ class FileSystemEntryController extends Controller
      */
     public function destroy(FileSystemEntry $fileSystemEntry)
     {
-        //
+        if ($fileSystemEntry->is_directory) {
+            $fileSystemEntry->descendantsAndSelf()->delete();
+        } else {
+            $fileSystemEntry->delete();
+        }
+
+        return response('ok');
     }
 
     public function goBack(Request $request, FileSystemEntry $fileSystemEntry)
