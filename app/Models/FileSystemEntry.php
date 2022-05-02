@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
@@ -31,25 +32,12 @@ class FileSystemEntry extends Model implements HasMedia
 
     public function permissions()
     {
-        return $this->hasOne('fileSystemEntry_group')->selectRaw(
-            'SELECT
-                            BIT_OR(`fileSystemEntry_group`.`read`) AS `read`,
-                            BIT_OR(fileSystemEntry_group.upload) AS upload,
-                            BIT_OR(fileSystemEntry_group.download) AS download,
-                            BIT_OR(fileSystemEntry_group.`delete`) AS `delete`
-                        FROM
-                            `group`,
-                            users,
-                            group_user,
-                            fileSystemEntry_group,
-                            file_system_entries
-                        WHERE
-                            `group`.id = group_user.group_id
-                                AND users.id = group_user.user_id
-                                AND `group`.id = fileSystemEntry_group.group_id
-                                AND file_system_entries.id = fileSystemEntry_group.file_system_entry_id
-                                AND users.id = ' . auth()->user()->id
-        );
+        return $this->hasMany(FileSystemEntryGroup::class, 'file_system_entry_id','id')
+            ->whereHas('groups', function (Builder $query) {
+            $query->whereHas('users', function (Builder $query){
+                $query->where('users.id',auth()->user()->id);
+            });
+        });
     }
     public function category()
     {

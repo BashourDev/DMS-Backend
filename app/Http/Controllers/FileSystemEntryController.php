@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FileSystemEntry;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use function Symfony\Component\Mime\Header\get;
@@ -16,7 +17,13 @@ class FileSystemEntryController extends Controller
      */
     public function index(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        return response(['documents' => $fileSystemEntry->children()->orderBy('name')->with('permissions')->whereRelation('permissions', 'read',true)->get(), 'parent' => $fileSystemEntry->id]);
+
+        return response(['documents' => $fileSystemEntry->children()->with('permissions',function ( $query){
+            $query->selectRaw('id,group_id,file_system_entry_id,bit_or(`read`) as `read`, bit_or(upload) as upload, bit_or(download) as download, bit_or(`delete`) as `delete`')->groupBy('id')->get();
+        })->whereRelation('permissions', function ($query){
+                $query->selectRaw('id,group_id,file_system_entry_id,bit_or(`read`) as `read`')->whereRaw(' `read` <> 0');
+            })->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
+//        return response(['documents' => $fileSystemEntry->children()->orderBy('name')->with('permissions')->whereRelation('permissions', 'read',true)->get(), 'parent' => $fileSystemEntry->id]);
     }
 
     /**
