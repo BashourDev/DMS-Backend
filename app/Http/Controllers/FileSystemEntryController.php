@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FileSystemEntry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use function Symfony\Component\Mime\Header\get;
 
 class FileSystemEntryController extends Controller
@@ -41,6 +42,22 @@ class FileSystemEntryController extends Controller
             $fse->addMediaFromRequest('attachment')->toMediaCollection();
         }
 
+        /**
+         *  permission inheritance
+         */
+        $parentDir = FileSystemEntry::find($parent);
+        $groups = $parentDir->groups()->withPivot(['read', 'upload', 'download', 'delete'])->get();
+        DB::beginTransaction();
+        foreach ($groups as $group){
+            $group->fileSystemEntries()->syncWithPivotValues(
+                [$fse->id],
+                ['read'=>$group->pivot['read'],
+                'upload'=>$group->pivot['upload'],
+                'download'=>$group->pivot['download'],
+                'delete'=>$group->pivot['delete']]
+            );
+        }
+        DB::commit();
         return response($fse);
     }
 
