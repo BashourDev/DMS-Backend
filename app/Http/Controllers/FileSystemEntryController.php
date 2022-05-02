@@ -19,9 +19,14 @@ class FileSystemEntryController extends Controller
     {
 
         return response(['documents' => $fileSystemEntry->children()->with('permissions',function ( $query){
-            $query->selectRaw('id,group_id,file_system_entry_id,bit_or(`read`) as `read`, bit_or(upload) as upload, bit_or(download) as download, bit_or(`delete`) as `delete`')->groupBy('id')->get();
+            $query->selectRaw('id,group_id,file_system_entry_id,
+            bit_or(`read`) as `read`
+            , bit_or(upload) as upload
+            , bit_or(download) as download
+            , bit_or(`delete`) as `delete`');
+//                ->groupBy(['id','group_id','file_system_entry_id']);
         })->whereRelation('permissions', function ($query){
-                $query->selectRaw('id,group_id,file_system_entry_id,bit_or(`read`) as `read`')->whereRaw(' `read` <> 0');
+                $query->selectRaw('id,group_id,file_system_entry_id,bit_or(`read`) as `read`')->having(' `read` <> 0');
             })->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
 //        return response(['documents' => $fileSystemEntry->children()->orderBy('name')->with('permissions')->whereRelation('permissions', 'read',true)->get(), 'parent' => $fileSystemEntry->id]);
     }

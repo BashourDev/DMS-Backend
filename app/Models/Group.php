@@ -20,4 +20,8 @@ class Group extends Pivot
         return $this->belongsToMany(FileSystemEntry::class, 'fileSystemEntry_group', 'group_id', 'file_system_entry_id');
     }
 
+    public function groupUser(){
+        return $this->hasMany(GroupUser::class,'group_id', 'id' );
+    }
+
 }

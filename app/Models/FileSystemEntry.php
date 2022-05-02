@@ -34,8 +34,8 @@ class FileSystemEntry extends Model implements HasMedia
     {
         return $this->hasMany(FileSystemEntryGroup::class, 'file_system_entry_id','id')
             ->whereHas('groups', function (Builder $query) {
-            $query->whereHas('users', function (Builder $query){
-                $query->where('users.id',auth()->user()->id);
+            $query->whereHas('groupUser', function (Builder $query){
+                $query->where('group_user.user_id',auth()->user()->id);
             });
         });
     }
