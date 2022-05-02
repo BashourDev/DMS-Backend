@@ -16,7 +16,7 @@ class FileSystemEntryController extends Controller
      */
     public function index(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        return response(['documents' => $fileSystemEntry->children()->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
+        return response(['documents' => $fileSystemEntry->children()->orderBy('name')->with('permissions')->get(), 'parent' => $fileSystemEntry->id]);
     }
 
     /**
