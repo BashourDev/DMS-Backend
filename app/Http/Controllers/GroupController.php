@@ -99,25 +99,25 @@ class GroupController extends Controller
         return response($users);
     }
 
-    public function linkFileSystemEntry(Request $request, Group $group, FileSystemEntry $fileSystemEntry)
-    {
-        $group->fileSystemEntries()->attach(
-            $fileSystemEntry->id,
-            ['read'=>$request->get('read'),
-            'upload'=>$request->get('upload'),
-            'download'=>$request->get('download'),
-            'delete'=>$request->get('delete')]);
-        return response(['status'=>'file system entry linked!']);
-    }
+//    public function linkFileSystemEntry(Request $request, Group $group, FileSystemEntry $fileSystemEntry)
+//    {
+//        $group->fileSystemEntries()->attach(
+//            $fileSystemEntry->id,
+//            ['read'=>$request->get('read'),
+//            'upload'=>$request->get('upload'),
+//            'download'=>$request->get('download'),
+//            'delete'=>$request->get('delete')]);
+//        return response(['status'=>'file system entry linked!']);
+//    }
 
-    public function updateFileSystemEntryPermissions(Request $request, Group $group, FileSystemEntry $fileSystemEntry)
-    {
-        $group->fileSystemEntries()->updateExistingPivot(
-            $fileSystemEntry->id,
-            ['read'=>$request->get('read'),
-            'upload'=>$request->get('upload'),
-            'download'=>$request->get('download'),
-            'delete'=>$request->get('delete')]);
-        return response(['status'=>'file system entry permissions updated!']);
-    }
+//    public function updateFileSystemEntryPermissions(Request $request, Group $group, FileSystemEntry $fileSystemEntry)
+//    {
+//        $group->fileSystemEntries()->updateExistingPivot(
+//            $fileSystemEntry->id,
+//            ['read'=>$request->get('read'),
+//            'upload'=>$request->get('upload'),
+//            'download'=>$request->get('download'),
+//            'delete'=>$request->get('delete')]);
+//        return response(['status'=>'file system entry permissions updated!']);
+//    }
 }
