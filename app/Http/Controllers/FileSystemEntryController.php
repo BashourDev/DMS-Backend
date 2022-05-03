@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FileSystemEntry;
+use App\Models\Group;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -202,5 +203,12 @@ class FileSystemEntryController extends Controller
             ]);
         }
         DB::commit();
+    }
+
+    public function linkableGroups(FileSystemEntry $fileSystemEntry){
+        $linkableGroups = Group::query()->whereDoesntHave('fileSystemEntries',function(Builder $query) use ($fileSystemEntry) {
+            $query->where('file_system_entries.id','=',$fileSystemEntry->id);
+        })->get();
+        return response($linkableGroups);
     }
 }
