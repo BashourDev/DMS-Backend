@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FileSystemEntry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Illuminate\Support\Facades\DB;
 use function Symfony\Component\Mime\Header\get;
@@ -160,5 +161,38 @@ class FileSystemEntryController extends Controller
     public function download(Request $request, Media $media)
     {
         return $media;
+    }
+
+    public function manipulateGroupsAndPermissions(Request $request, FileSystemEntry $fileSystemEntry){
+        DB::beginTransaction();
+        /**
+         * detaching groups from this file system entry
+         */
+        $fileSystemEntry->groups()->detach(Arr::pluck($request->get('deleted_groups'),'group_id'));
+
+        /**
+         * attaching new groups to this file system entry
+         */
+        foreach ($request->get('new_groups') as $newGroup){
+            $fileSystemEntry->groups()->attach($newGroup->group_id,[
+                'read'=>$newGroup->read,
+                'upload'=>$newGroup->upload,
+                'download'=>$newGroup->download,
+                'delete'=>$newGroup->delete
+            ]);
+        }
+
+        /**
+         * editing existing permissions between this file system entry and its groups
+         */
+        foreach ($request->get('updated_groups') as $oldGroup){
+            $fileSystemEntry->groups()->updateExistingPivot($oldGroup->id,[
+                'read'=>$oldGroup->read,
+                'upload'=>$oldGroup->upload,
+                'download'=>$oldGroup->download,
+                'delete'=>$oldGroup->delete
+            ]);
+        }
+        DB::commit();
     }
 }
