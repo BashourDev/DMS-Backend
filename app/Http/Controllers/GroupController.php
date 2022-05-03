@@ -101,8 +101,8 @@ class GroupController extends Controller
 
     public function linkFileSystemEntry(Request $request, Group $group, FileSystemEntry $fileSystemEntry)
     {
-        $group->fileSystemEntries()->syncWithPivotValues(
-            [$fileSystemEntry->id],
+        $group->fileSystemEntries()->attach(
+            $fileSystemEntry->id,
             ['read'=>$request->get('read'),
             'upload'=>$request->get('upload'),
             'download'=>$request->get('download'),
