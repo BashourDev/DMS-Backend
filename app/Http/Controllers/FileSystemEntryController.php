@@ -18,15 +18,20 @@ class FileSystemEntryController extends Controller
      */
     public function index(Request $request, FileSystemEntry $fileSystemEntry)
     {
-
-        return response(['documents' => $fileSystemEntry->children()->with('permissions',function ( $query){
-            $query->selectRaw('id,group_id,file_system_entry_id,
+        if (auth()->user()->is_admin) {
+            return response(['documents' => $fileSystemEntry->children()->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
+        } else {
+            return response(['documents' => $fileSystemEntry->children()->with('permissions',function ( $query){
+                $query->selectRaw('id,group_id,file_system_entry_id,
             bit_or(`read`) as `read`
             , bit_or(upload) as upload
             , bit_or(download) as download
             , bit_or(`delete`) as `delete`')->groupBy('file_system_entry_id');
-        })->whereRelation('permissions','read',1 )
-            ->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
+            })->whereRelation('permissions','read',1 )
+                ->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
+        }
+
+
     }
 
     /**
@@ -118,16 +123,19 @@ class FileSystemEntryController extends Controller
 
     public function goBack(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        $parent = $fileSystemEntry->parent;
-        return response(['documents' => $parent->children()->with('permissions',function ( $query){
-            $query->selectRaw('id,group_id,file_system_entry_id,
+        if (auth()->user()->is_admin) {
+                    return response(['documents' => $fileSystemEntry->parent->children()->orderBy('name')->get(), 'parent' => $fileSystemEntry->parent->id]);
+        } else {
+            $parent = $fileSystemEntry->parent;
+            return response(['documents' => $parent->children()->with('permissions',function ( $query){
+                $query->selectRaw('id,group_id,file_system_entry_id,
             bit_or(`read`) as `read`
             , bit_or(upload) as upload
             , bit_or(download) as download
             , bit_or(`delete`) as `delete`')->groupBy('file_system_entry_id');
-        })->whereRelation('permissions','read',1 )
-            ->orderBy('name')->get(), 'parent' => $parent->id]);
-//        return response(['documents' => $fileSystemEntry->parent->children()->orderBy('name')->get(), 'parent' => $fileSystemEntry->parent->id]);
+            })->whereRelation('permissions','read',1 )
+                ->orderBy('name')->get(), 'parent' => $parent->id]);
+        }
     }
 
     /**
