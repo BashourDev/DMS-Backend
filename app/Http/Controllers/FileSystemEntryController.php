@@ -176,12 +176,12 @@ class FileSystemEntryController extends Controller
         /**
          * detaching groups from this file system entry
          */
-        $fileSystemEntry->groups()->detach(Arr::pluck($request->get('deleted_groups'),'group_id'));
+        $fileSystemEntry->groups()->detach(json_decode($request->get('deleted_groups')));
 
         /**
          * attaching new groups to this file system entry
          */
-        foreach ($request->get('new_groups') as $newGroup){
+        foreach (json_decode($request->get('new_groups')) as $newGroup){
             $fileSystemEntry->groups()->attach($newGroup->group_id,[
                 'read'=>$newGroup->read,
                 'upload'=>$newGroup->upload,
@@ -193,8 +193,8 @@ class FileSystemEntryController extends Controller
         /**
          * editing existing permissions between this file system entry and its groups
          */
-        foreach ($request->get('updated_groups') as $oldGroup){
-            $fileSystemEntry->groups()->updateExistingPivot($oldGroup->id,[
+        foreach (json_decode($request->get('updated_groups')) as $oldGroup){
+            $fileSystemEntry->groups()->updateExistingPivot($oldGroup->group_id,[
                 'read'=>$oldGroup->read,
                 'upload'=>$oldGroup->upload,
                 'download'=>$oldGroup->download,
