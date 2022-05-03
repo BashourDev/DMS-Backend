@@ -65,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('is_admin')->group(function(){
             Route::post('/{fileSystemEntry}/manipulate-groups-and-permissions',[FileSystemEntryController::class,'manipulateGroupsAndPermissions']);
             Route::get('/{fileSystemEntry}/get-groups',[FileSystemEntryController::class,'getGroups']);
+            Route::get('/{fileSystemEntry}/linkable-groups',[FileSystemEntryController::class,'linkableGroups']);
         });
         Route::get('/go-back/{fileSystemEntry}', [FileSystemEntryController::class, 'goBack']);
         Route::post('/{parent}/create', [FileSystemEntryController::class, 'store']);
