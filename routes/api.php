@@ -51,6 +51,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('/documents')->group( function () {
         Route::get('/{fileSystemEntry}', [FileSystemEntryController::class, 'index']);
+        Route::get('/{fileSystemEntry}/versions', [FileSystemEntryController::class, 'versions']);
+        Route::post('/{fileSystemEntry}/versions/add', [FileSystemEntryController::class, 'add_version']);
+        Route::get('/media/{media}/download', [FileSystemEntryController::class, 'download']);
+        Route::delete('/{fileSystemEntry}/versions/{version}/delete', [FileSystemEntryController::class, 'delete_version']);
         Route::get('/{fileSystemEntry}/show', [FileSystemEntryController::class, 'show']);
         Route::put('/{fileSystemEntry}/update', [FileSystemEntryController::class, 'update']);
         Route::delete('/{fileSystemEntry}/delete', [FileSystemEntryController::class, 'destroy']);

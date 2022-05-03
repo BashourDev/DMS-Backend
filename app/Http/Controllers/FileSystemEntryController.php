@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FileSystemEntry;
 use Illuminate\Http\Request;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class FileSystemEntryController extends Controller
 {
@@ -91,5 +92,27 @@ class FileSystemEntryController extends Controller
     public function goBack(Request $request, FileSystemEntry $fileSystemEntry)
     {
         return response(['documents' => $fileSystemEntry->parent->children()->orderBy('name')->get(), 'parent' => $fileSystemEntry->parent->id]);
+    }
+
+    public function versions(Request $request, FileSystemEntry $fileSystemEntry)
+    {
+        return response($fileSystemEntry->loadMissing('media'));
+    }
+
+    public function add_version(Request $request, FileSystemEntry $fileSystemEntry)
+    {
+        $fileSystemEntry->addMediaFromRequest('attachment')->toMediaCollection();
+        return response($fileSystemEntry->loadMissing('media'));
+    }
+
+    public function delete_version(Request $request, FileSystemEntry $fileSystemEntry, $version)
+    {
+        $fileSystemEntry->media()->find($version)->delete();
+        return response($fileSystemEntry->loadMissing('media'));
+    }
+
+    public function download(Request $request, Media $media)
+    {
+        return $media;
     }
 }
