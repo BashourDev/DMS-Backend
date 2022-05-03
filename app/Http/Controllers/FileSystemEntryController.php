@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\FileSystemEntry;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Support\Facades\DB;
+use function Symfony\Component\Mime\Header\get;
 
 class FileSystemEntryController extends Controller
 {
@@ -15,7 +18,15 @@ class FileSystemEntryController extends Controller
      */
     public function index(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        return response(['documents' => $fileSystemEntry->children()->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
+
+        return response(['documents' => $fileSystemEntry->children()->with('permissions',function ( $query){
+            $query->selectRaw('id,group_id,file_system_entry_id,
+            bit_or(`read`) as `read`
+            , bit_or(upload) as upload
+            , bit_or(download) as download
+            , bit_or(`delete`) as `delete`')->groupBy('file_system_entry_id');
+        })->whereRelation('permissions','read',1 )
+            ->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
     }
 
     /**
@@ -41,6 +52,22 @@ class FileSystemEntryController extends Controller
             $fse->addMediaFromRequest('attachment')->toMediaCollection();
         }
 
+        /**
+         *  permission inheritance
+         */
+        $parentDir = FileSystemEntry::find($parent);
+        $groups = $parentDir->groups()->withPivot(['read', 'upload', 'download', 'delete'])->get();
+        DB::beginTransaction();
+        foreach ($groups as $group){
+            $group->fileSystemEntries()->attach(
+                $fse->id,
+                ['read'=>$group->pivot['read'],
+                'upload'=>$group->pivot['upload'],
+                'download'=>$group->pivot['download'],
+                'delete'=>$group->pivot['delete']]
+            );
+        }
+        DB::commit();
         return response($fse);
     }
 
@@ -91,7 +118,26 @@ class FileSystemEntryController extends Controller
 
     public function goBack(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        return response(['documents' => $fileSystemEntry->parent->children()->orderBy('name')->get(), 'parent' => $fileSystemEntry->parent->id]);
+        $parent = $fileSystemEntry->parent;
+        return response(['documents' => $parent->children()->with('permissions',function ( $query){
+            $query->selectRaw('id,group_id,file_system_entry_id,
+            bit_or(`read`) as `read`
+            , bit_or(upload) as upload
+            , bit_or(download) as download
+            , bit_or(`delete`) as `delete`')->groupBy('file_system_entry_id');
+        })->whereRelation('permissions','read',1 )
+            ->orderBy('name')->get(), 'parent' => $parent->id]);
+//        return response(['documents' => $fileSystemEntry->parent->children()->orderBy('name')->get(), 'parent' => $fileSystemEntry->parent->id]);
+    }
+
+    /**
+     *
+     * @param FileSystemEntry $fileSystemEntry
+     * @return \Illuminate\Http\Response
+     */
+    public function getGroups(FileSystemEntry $fileSystemEntry)
+    {
+        return response($fileSystemEntry->groups()->withPivot(['read', 'upload', 'download', 'delete'])->get());
     }
 
     public function versions(Request $request, FileSystemEntry $fileSystemEntry)

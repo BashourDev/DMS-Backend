@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
@@ -24,6 +25,20 @@ class FileSystemEntry extends Model implements HasMedia
         return $this->belongsToMany(User::class, 'reminders', 'file_system_entry_id', 'user_id');
     }
 
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'fileSystemEntry_group',  'file_system_entry_id', 'group_id');
+    }
+
+    public function permissions()
+    {
+        return $this->hasMany(FileSystemEntryGroup::class, 'file_system_entry_id','id')
+            ->whereHas('groups', function (Builder $query) {
+            $query->whereHas('groupUser', function (Builder $query){
+                $query->where('group_user.user_id',auth()->user()->id);
+            });
+        });
+    }
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id', 'id');

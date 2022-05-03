@@ -13,14 +13,15 @@ class Group extends Pivot
         return $this->belongsToMany(User::class, 'group_user', 'user_id', 'group_id');
     }
 
-    public function permissions()
-    {
-        return $this->belongsToMany(Permission::class, 'group_permission');
-    }
+
 
     public function fileSystemEntries()
     {
-        return $this->belongsToMany(FileSystemEntry::class, 'group_permission', 'group_id', 'file_system_entry_id');
+        return $this->belongsToMany(FileSystemEntry::class, 'fileSystemEntry_group', 'group_id', 'file_system_entry_id');
+    }
+
+    public function groupUser(){
+        return $this->hasMany(GroupUser::class,'group_id', 'id' );
     }
 
 }
