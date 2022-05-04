@@ -66,7 +66,7 @@ class UserController extends Controller
 
     public function userGroups(User $user)
     {
-        return response($user->groups()->get());
+        return response($user->groups);
     }
 
     public function userAvailableGroups(User $user)

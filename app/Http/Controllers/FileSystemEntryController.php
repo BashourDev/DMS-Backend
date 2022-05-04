@@ -21,7 +21,7 @@ class FileSystemEntryController extends Controller
     public function index(Request $request, FileSystemEntry $fileSystemEntry)
     {
         if (auth()->user()->is_admin) {
-            return response(['documents' => $fileSystemEntry->children()->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
+            return response(['documents' => $fileSystemEntry->children()->with(['media:id,model_type,model_id,disk,file_name'])->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
         } else {
             return response(['documents' => $fileSystemEntry->children()->with('permissions',function ( $query){
                 $query->selectRaw('id,group_id,file_system_entry_id,
@@ -29,7 +29,7 @@ class FileSystemEntryController extends Controller
             , bit_or(upload) as upload
             , bit_or(download) as download
             , bit_or(`delete`) as `delete`')->groupBy('file_system_entry_id');
-            })->whereRelation('permissions','read',1 )
+            })->with('media:id,model_type,model_id,disk,file_name')->whereRelation('permissions','read',1 )
                 ->orderBy('name')->get(), 'parent' => $fileSystemEntry->id]);
         }
 
@@ -75,7 +75,18 @@ class FileSystemEntryController extends Controller
             );
         }
         DB::commit();
-        return response($fse);
+//        return response($fse->loadMissing('media:id,model_type,model_id,disk,file_name'));
+        if (auth()->user()->is_admin) {
+            return response($fse->loadMissing(['media:id,model_type,model_id,disk,file_name']));
+        } else {
+            return response($fse->loadMissing(['media:id,model_type,model_id,disk,file_name', 'permissions' => function ( $query){
+                $query->selectRaw('id,group_id,file_system_entry_id,
+            bit_or(`read`) as `read`
+            , bit_or(upload) as upload
+            , bit_or(download) as download
+            , bit_or(`delete`) as `delete`')->groupBy('file_system_entry_id');
+            }]));
+        }
     }
 
     /**
@@ -170,6 +181,11 @@ class FileSystemEntryController extends Controller
     public function download(Request $request, Media $media)
     {
         return $media;
+    }
+
+    public function download_latest(Request $request, FileSystemEntry $fileSystemEntry)
+    {
+        return [$fileSystemEntry->media()->latest('updated_at')->get()->last()];
     }
 
     public function manipulateGroupsAndPermissions(Request $request, FileSystemEntry $fileSystemEntry){

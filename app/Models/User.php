@@ -44,7 +44,7 @@ class User extends Authenticatable
 
     public function groups()
     {
-        return $this->belongsToMany(Group::class, 'group_user', 'group_id', 'user_id');
+        return $this->belongsToMany(Group::class, 'group_user', 'user_id', 'group_id');
     }
 
     public function reminders()
