@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->foreignId('file_system_entry_id');
-            $table->date('remember_on');
+            $table->boolean('read');
             $table->timestamps();
         });
     }
