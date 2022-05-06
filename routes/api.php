@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FileSystemEntryController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{user}/delete', [UserController::class, 'destroy']);
         Route::get('/{user}/groups', [UserController::class, 'userGroups']);
         Route::get('/{user}/groups/available', [UserController::class, 'userAvailableGroups']);
+
+        Route::get('/my-reminders',[UserController::class,'myReminders']);
+        Route::get('/my-reminders-count',[UserController::class,'remindersCount']);
+        Route::post('/file-system-entries/{fileSystemEntry}/create-reminder',[ReminderController::class,'store']);
+        Route::delete('/file-system-entries/{fileSystemEntry}/mark-as-read',[ReminderController::class,'destroy']);
 
     });
 
