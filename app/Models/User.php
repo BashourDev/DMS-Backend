@@ -54,6 +54,6 @@ class User extends Authenticatable
 
     public function fileSystemEntries()
     {
-        return $this->hasMany(FileSystemEntry::class, 'creator', 'id');
+        return $this->belongsToMany(FileSystemEntry::class, 'reminders', 'user_id','file_system_entry_id');
     }
 }

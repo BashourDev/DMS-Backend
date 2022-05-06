@@ -13,6 +13,10 @@ class Reminder extends Model
 
     public function fileSystemEntries()
     {
-        return $this->belongsTo(FileSystemEntry::class, 'file_system_entry_id', 'id');
+        return $this->hasOne(FileSystemEntry::class, 'id', 'file_system_entry_id');
+    }
+
+    public function user(){
+        return $this->hasOne(User::class, 'id','user_id');
     }
 }
