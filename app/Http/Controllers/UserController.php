@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Group;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -85,7 +86,11 @@ class UserController extends Controller
             , bit_or(download) as download
             , bit_or(`delete`) as `delete`')->groupBy('file_system_entry_id');
         })->with('media:id,model_type,model_id,disk,file_name')->whereRelation('permissions','read',1 )
-            ->orderBy('updated_at')->get()]);
+            ->orderByDesc('file_system_entries.due_date')->get()]);
+    }
+
+    public function remindersCount(){
+        return response(auth()->user()->loadCount('FSEreminders'));
     }
 
 }
