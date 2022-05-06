@@ -9,7 +9,7 @@ class Reminder extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'file_system_entry_id', 'remember_on'];
+    protected $fillable = ['user_id', 'file_system_entry_id'];
 
     public function fileSystemEntries()
     {

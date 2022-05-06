@@ -26,7 +26,7 @@ class ReminderController extends Controller
      */
     public function store(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        auth()->user()->fileSystemEntries()->attach($fileSystemEntry->id,['read'=>0]);
+        auth()->user()->fileSystemEntries()->attach($fileSystemEntry->id);
         return response('A reminder is setup');
     }
 

@@ -29,6 +29,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
 
     Route::prefix('/users')->group( function () {
+
+        Route::get('/my-reminders',[UserController::class,'myReminders']);
+        Route::get('/my-reminders-count',[UserController::class,'remindersCount']);
+        Route::post('/file-system-entries/{fileSystemEntry}/create-reminder',[ReminderController::class,'store']);
+        Route::delete('/file-system-entries/{fileSystemEntry}/mark-as-read',[ReminderController::class,'destroy']);
+
         Route::get('/', [UserController::class, 'index']);
         Route::post('/create', [UserController::class, 'create']);
         Route::get('/{user}', [UserController::class, 'show']);
@@ -37,10 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{user}/groups', [UserController::class, 'userGroups']);
         Route::get('/{user}/groups/available', [UserController::class, 'userAvailableGroups']);
 
-        Route::get('/my-reminders',[UserController::class,'myReminders']);
-        Route::get('/my-reminders-count',[UserController::class,'remindersCount']);
-        Route::post('/file-system-entries/{fileSystemEntry}/create-reminder',[ReminderController::class,'store']);
-        Route::delete('/file-system-entries/{fileSystemEntry}/mark-as-read',[ReminderController::class,'destroy']);
+
 
     });
 
