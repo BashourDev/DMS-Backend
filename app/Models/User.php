@@ -56,5 +56,9 @@ class User extends Authenticatable
         return $this->belongsToMany(FileSystemEntry::class, 'reminders', 'user_id','file_system_entry_id')->where('file_system_entries.due_date','<=',Carbon::now()->toDateString())->wherePivot('`read`',0);
     }
 
+    public function fileSystemEntries(){
+        return $this->belongsToMany(FileSystemEntry::class, 'reminders', 'user_id','file_system_entry_id');
+    }
+
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FileSystemEntry;
 use App\Models\Reminder;
 use Illuminate\Http\Request;
 
@@ -23,9 +24,10 @@ class ReminderController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        //
+        auth()->user()->fileSystemEntries()->attach($fileSystemEntry->id,['read'=>0]);
+        return response('A reminder is setup');
     }
 
     /**
