@@ -76,4 +76,16 @@ class UserController extends Controller
         })->get();
         return response($groups);
     }
+
+    public function myReminders(){
+        return response(['documents' => auth()->user()->FSEreminders()->with('permissions',function ( $query){
+            $query->selectRaw('id,group_id,file_system_entry_id,
+            bit_or(`read`) as `read`
+            , bit_or(upload) as upload
+            , bit_or(download) as download
+            , bit_or(`delete`) as `delete`')->groupBy('file_system_entry_id');
+        })->with('media:id,model_type,model_id,disk,file_name')->whereRelation('permissions','read',1 )
+            ->orderBy('updated_at')->get()]);
+    }
+
 }
