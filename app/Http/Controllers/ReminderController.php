@@ -59,8 +59,9 @@ class ReminderController extends Controller
      * @param  \App\Models\Reminder  $reminder
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Reminder $reminder)
+    public function destroy(FileSystemEntry $fileSystemEntry)
     {
-        //
+        auth()->user()->fileSystemEntries()->detach($fileSystemEntry->id);
+        return response('reminder is destroyed!');
     }
 }
