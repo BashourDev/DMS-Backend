@@ -90,7 +90,7 @@ class UserController extends Controller
     }
 
     public function remindersCount(){
-        return response(auth()->user()->loadCount('FSEreminders')->FSEreminders_count);
+        return response(auth()->user()->loadCount('FSEreminders')->f_s_ereminders_count);
     }
 
 }

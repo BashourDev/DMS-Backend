@@ -54,10 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{group}/delete', [GroupController::class, 'destroy']);
         Route::get('/{group}/users', [GroupController::class, 'groupUsers']);
         Route::get('/{group}/users/available', [GroupController::class, 'groupAvailableUsers']);
-//        Route::middleware('is_admin')->group(function (){
-//            Route::post('/{group}/{fileSystemEntry}/link',[GroupController::class,'linkFileSystemEntry']);
-//            Route::put('/{group}/{fileSystemEntry}/update-permissions',[GroupController::class,'updateFileSystemEntryPermissions']);
-//        });
+        Route::middleware('is_admin')->group(function (){
+            Route::post('/{group}/{fileSystemEntry}/link',[GroupController::class,'linkFileSystemEntry']);
+            Route::put('/{group}/{fileSystemEntry}/update-permissions',[GroupController::class,'updateFileSystemEntryPermissions']);
+        });
         Route::post('/{user}/groups/add/{group}', [GroupController::class, 'addUser']);
         Route::delete('/{user}/groups/delete/{group}', [GroupController::class, 'removeUser']);
     });

@@ -53,7 +53,7 @@ class User extends Authenticatable
 
     public function FSEreminders()
     {
-        return $this->belongsToMany(FileSystemEntry::class, 'reminders', 'user_id','file_system_entry_id')->where('file_system_entries.due_date','<=',Carbon::now()->toDateString());
+        return $this->belongsToMany(FileSystemEntry::class, 'reminders', 'user_id','file_system_entry_id')->whereDate('file_system_entries.due_date','<=',Carbon::now()->toDateString());
     }
 
     public function fileSystemEntries(){
