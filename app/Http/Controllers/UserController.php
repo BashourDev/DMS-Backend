@@ -79,14 +79,18 @@ class UserController extends Controller
     }
 
     public function myReminders(){
-        return response(['documents' => auth()->user()->FSEreminders()->with('permissions',function ( $query){
-            $query->selectRaw('id,group_id,file_system_entry_id,
+        if (auth()->user()->is_admin) {
+            return response(['documents' => auth()->user()->FSEreminders()->with(['media:id,model_type,model_id,disk,file_name'])->orderByDesc('file_system_entries.due_date')->get()]);
+        } else {
+            return response(['documents' => auth()->user()->FSEreminders()->with('permissions', function ($query) {
+                $query->selectRaw('id,group_id,file_system_entry_id,
             bit_or(`read`) as `read`
             , bit_or(upload) as upload
             , bit_or(download) as download
             , bit_or(`delete`) as `delete`')->groupBy('file_system_entry_id');
-        })->with('media:id,model_type,model_id,disk,file_name')->whereRelation('permissions','read',1 )
-            ->orderByDesc('file_system_entries.due_date')->get()]);
+            })->with('media:id,model_type,model_id,disk,file_name')->whereRelation('permissions', 'read', 1)
+                ->orderByDesc('file_system_entries.due_date')->get()]);
+        }
     }
 
     public function remindersCount(){
