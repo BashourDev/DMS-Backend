@@ -30,7 +30,7 @@ class FileSystemEntryPolicy
      */
     public function view(User $user, FileSystemEntry $fileSystemEntry)
     {
-        return $fileSystemEntry->permissions()->selectRaw('id,group_id,file_system_entry_id,
+        return auth()->user()->is_admin || $fileSystemEntry->permissions()->selectRaw('id,group_id,file_system_entry_id,
             , bit_or(`read`) as `read`
             ')->groupBy('file_system_entry_id')->get()->first()->read == 1;
     }
@@ -43,13 +43,13 @@ class FileSystemEntryPolicy
      */
     public function upload(User $user, FileSystemEntry $fileSystemEntry)
     {
-         return $fileSystemEntry->permissions()->selectRaw('id,group_id,file_system_entry_id,
+         return auth()->user()->is_admin || $fileSystemEntry->permissions()->selectRaw('id,group_id,file_system_entry_id,
             , bit_or(upload) as upload
             ')->groupBy('file_system_entry_id')->get()->first()->upload == 1;
     }
 
     public function download(User $user, FileSystemEntry $fileSystemEntry){
-        return $fileSystemEntry->permissions()->selectRaw('id,group_id,file_system_entry_id,
+        return auth()->user()->is_admin || $fileSystemEntry->permissions()->selectRaw('id,group_id,file_system_entry_id,
             , bit_or(download) as download
             ')->groupBy('file_system_entry_id')->get()->first()->download == 1;
     }
@@ -75,7 +75,7 @@ class FileSystemEntryPolicy
      */
     public function delete(User $user, FileSystemEntry $fileSystemEntry)
     {
-        return $fileSystemEntry->permissions()->selectRaw('id,group_id,file_system_entry_id,
+        return auth()->user()->is_admin || $fileSystemEntry->permissions()->selectRaw('id,group_id,file_system_entry_id,
             , bit_or(`delete`) as `delete`
             ')->groupBy('file_system_entry_id')->get()->first()->delete == 1;
     }
