@@ -45,7 +45,7 @@ class FileSystemEntryController extends Controller
      */
     public function store(Request $request, $parent)
     {
-        $this->authorize('upload',$parent);
+        $this->authorize('upload',[auth()->user(),$parent]);
         $fse = FileSystemEntry::query()->create([
             'group_approval_id' => $request->get('group_approval_id'),
             'category_id' => $request->get('category'),
@@ -98,7 +98,7 @@ class FileSystemEntryController extends Controller
      */
     public function show(FileSystemEntry $fileSystemEntry)
     {
-        $this->authorize('view',$fileSystemEntry);
+        $this->authorize('view',[auth()->user(),$fileSystemEntry]);
         return response($fileSystemEntry->loadMissing(['category', 'group_approval']));
     }
 
@@ -111,7 +111,7 @@ class FileSystemEntryController extends Controller
      */
     public function update(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        $this->authorize('upload',$fileSystemEntry);
+        $this->authorize('upload',[auth()->user(),$fileSystemEntry]);
         $fileSystemEntry->name = $request->get('name');
         $fileSystemEntry->category_id = $request->get('category');
         $fileSystemEntry->group_approval_id = $request->get('group_approval_id');
@@ -128,7 +128,7 @@ class FileSystemEntryController extends Controller
      */
     public function destroy(FileSystemEntry $fileSystemEntry)
     {
-        $this->authorize('delete',$fileSystemEntry);
+        $this->authorize('delete',[auth()->user(),$fileSystemEntry]);
         if ($fileSystemEntry->is_directory) {
             $fileSystemEntry->descendantsAndSelf()->delete();
         } else {
@@ -172,7 +172,7 @@ class FileSystemEntryController extends Controller
 
     public function add_version(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        $this->authorize('upload',$fileSystemEntry);
+        $this->authorize('upload',[auth()->user(),$fileSystemEntry]);
 
         $fileSystemEntry->addMediaFromRequest('attachment')->toMediaCollection();
         return response($fileSystemEntry->loadMissing('media'));
@@ -180,7 +180,7 @@ class FileSystemEntryController extends Controller
 
     public function delete_version(Request $request, FileSystemEntry $fileSystemEntry, $version)
     {
-        $this->authorize('delete',$fileSystemEntry);
+        $this->authorize('delete',[auth()->user(),$fileSystemEntry]);
 
         $fileSystemEntry->media()->find($version)->delete();
         return response($fileSystemEntry->loadMissing('media'));
@@ -188,7 +188,7 @@ class FileSystemEntryController extends Controller
 
     public function download(Request $request,FileSystemEntry $fileSystemEntry, Media $media)
     {
-        $this->authorize('download',$fileSystemEntry);
+        $this->authorize('download',[auth()->user(),$fileSystemEntry]);
         return $media;
     }
 
@@ -198,35 +198,41 @@ class FileSystemEntryController extends Controller
     }
 
     public function manipulateGroupsAndPermissions(Request $request, FileSystemEntry $fileSystemEntry){
+        $fses = $fileSystemEntry->descendantsAndSelf()->get();
+
         DB::beginTransaction();
-        /**
-         * detaching groups from this file system entry
-         */
-        $fileSystemEntry->groups()->detach(json_decode($request->get('deleted_groups')));
+        foreach ($fses as $fse){
 
-        /**
-         * attaching new groups to this file system entry
-         */
-        foreach (json_decode($request->get('new_groups')) as $newGroup){
-            $fileSystemEntry->groups()->attach($newGroup->group_id,[
-                'read'=>$newGroup->read,
-                'upload'=>$newGroup->upload,
-                'download'=>$newGroup->download,
-                'delete'=>$newGroup->delete
-            ]);
+            /**
+             * detaching groups from this file system entry
+             */
+            $fse->groups()->detach(json_decode($request->get('deleted_groups')));
+
+            /**
+             * attaching new groups to this file system entry
+             */
+            foreach (json_decode($request->get('new_groups')) as $newGroup){
+                $fse->groups()->attach($newGroup->group_id,[
+                    'read'=>$newGroup->read,
+                    'upload'=>$newGroup->upload,
+                    'download'=>$newGroup->download,
+                    'delete'=>$newGroup->delete
+                ]);
+            }
+
+            /**
+             * editing existing permissions between this file system entry and its groups
+             */
+            foreach (json_decode($request->get('updated_groups')) as $oldGroup){
+                $fse->groups()->updateExistingPivot($oldGroup->group_id,[
+                    'read'=>$oldGroup->read,
+                    'upload'=>$oldGroup->upload,
+                    'download'=>$oldGroup->download,
+                    'delete'=>$oldGroup->delete
+                ]);
+            }
         }
 
-        /**
-         * editing existing permissions between this file system entry and its groups
-         */
-        foreach (json_decode($request->get('updated_groups')) as $oldGroup){
-            $fileSystemEntry->groups()->updateExistingPivot($oldGroup->group_id,[
-                'read'=>$oldGroup->read,
-                'upload'=>$oldGroup->upload,
-                'download'=>$oldGroup->download,
-                'delete'=>$oldGroup->delete
-            ]);
-        }
         DB::commit();
     }
 
