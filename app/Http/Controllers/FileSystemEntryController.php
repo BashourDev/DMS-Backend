@@ -45,7 +45,7 @@ class FileSystemEntryController extends Controller
      */
     public function store(Request $request, $parent)
     {
-        $this->authorize('upload',[auth()->user(),$parent]);
+        $this->authorize('upload',[$parent]);
         $fse = FileSystemEntry::query()->create([
             'group_approval_id' => $request->get('group_approval_id'),
             'category_id' => $request->get('category'),
@@ -98,7 +98,7 @@ class FileSystemEntryController extends Controller
      */
     public function show(FileSystemEntry $fileSystemEntry)
     {
-        $this->authorize('view',[auth()->user(),$fileSystemEntry]);
+        $this->authorize('view',[$fileSystemEntry]);
         return response($fileSystemEntry->loadMissing(['category', 'group_approval']));
     }
 
@@ -111,7 +111,7 @@ class FileSystemEntryController extends Controller
      */
     public function update(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        $this->authorize('upload',[auth()->user(),$fileSystemEntry]);
+        $this->authorize('upload',[$fileSystemEntry]);
         $fileSystemEntry->name = $request->get('name');
         $fileSystemEntry->category_id = $request->get('category');
         $fileSystemEntry->group_approval_id = $request->get('group_approval_id');
@@ -128,7 +128,7 @@ class FileSystemEntryController extends Controller
      */
     public function destroy(FileSystemEntry $fileSystemEntry)
     {
-        $this->authorize('delete',[auth()->user(),$fileSystemEntry]);
+        $this->authorize('delete',[$fileSystemEntry]);
         if ($fileSystemEntry->is_directory) {
             $fileSystemEntry->descendantsAndSelf()->delete();
         } else {
@@ -172,7 +172,7 @@ class FileSystemEntryController extends Controller
 
     public function add_version(Request $request, FileSystemEntry $fileSystemEntry)
     {
-        $this->authorize('upload',[auth()->user(),$fileSystemEntry]);
+        $this->authorize('upload',[$fileSystemEntry]);
 
         $fileSystemEntry->addMediaFromRequest('attachment')->toMediaCollection();
         return response($fileSystemEntry->loadMissing('media'));
@@ -180,7 +180,7 @@ class FileSystemEntryController extends Controller
 
     public function delete_version(Request $request, FileSystemEntry $fileSystemEntry, $version)
     {
-        $this->authorize('delete',[auth()->user(),$fileSystemEntry]);
+        $this->authorize('delete',[$fileSystemEntry]);
 
         $fileSystemEntry->media()->find($version)->delete();
         return response($fileSystemEntry->loadMissing('media'));
@@ -188,7 +188,7 @@ class FileSystemEntryController extends Controller
 
     public function download(Request $request,FileSystemEntry $fileSystemEntry, Media $media)
     {
-        $this->authorize('download',[auth()->user(),$fileSystemEntry]);
+        $this->authorize('download',[$fileSystemEntry]);
         return $media;
     }
 
