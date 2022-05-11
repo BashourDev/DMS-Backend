@@ -186,8 +186,9 @@ class FileSystemEntryController extends Controller
         return response($fileSystemEntry->loadMissing('media'));
     }
 
-    public function download(Request $request, Media $media)
+    public function download(Request $request,FileSystemEntry $fileSystemEntry, Media $media)
     {
+        $this->authorize('download',$fileSystemEntry);
         return $media;
     }
 
